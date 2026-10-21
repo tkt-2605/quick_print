@@ -11,7 +11,8 @@ import { useStore } from '../lib/store.jsx';
 export default function Home() {
   const { config, online, canOrder } = useStore();
   const [trending, setTrending] = useState([]);
-  const counter = config?.paymentMode === 'counter';
+  // Until the shop has been reached once, assume pay at counter (no gateway yet).
+  const counter = (config?.paymentMode || 'counter') === 'counter';
 
   useEffect(() => {
     api.trending().then(setTrending, () => {});
