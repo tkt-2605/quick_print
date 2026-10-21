@@ -58,12 +58,26 @@ The tunnel needs `thiruvengadam.me`'s DNS to be managed by Cloudflare.
    Logs are in `data\logs\`. To remove: add `-Remove`.
 6. Windows settings: **Sleep = Never** while plugged in, and log in automatically (or stay logged in). The print agent runs in your user session so it can see the printers.
 
-## 4. Cloudflare Tunnel (one time, ~10 min)
+## 4. Cloudflare Tunnel ✅ created
 
-1. Open the Cloudflare dashboard → **Zero Trust** → **Networks → Tunnels** → **Create a tunnel** → *Cloudflared* → name it `quickprint`.
-2. Choose **Windows** and run the install command it shows (`cloudflared.exe service install <token>`) in an **admin** PowerShell on the shop PC. It runs as a Windows service and starts with the PC.
-3. **Public hostname:** subdomain `quickprint-api`, domain `thiruvengadam.me`, service **HTTP** `localhost:4000`.
-4. Check that https://quickprint-api.thiruvengadam.me/api/status shows `{"open": …}`.
+Already done on the development PC (22 Oct 2026):
+
+- Tunnel **`quickprint`** (id `00a69f8c-60af-45a2-87ec-b5112688c00e`)
+- DNS: `quickprint-api.thiruvengadam.me` → tunnel
+- Config: `%USERPROFILE%\.cloudflared\config.yml` → `http://localhost:4000`
+- `cloudflared.exe` in `%LOCALAPPDATA%\cloudflared\`
+- `install-autostart.ps1` starts the tunnel with the server and agent when `config.yml` exists
+
+**Moving it to the shop PC:**
+
+1. Copy `%LOCALAPPDATA%\cloudflared\cloudflared.exe` to the same folder on the shop PC.
+2. Copy `%USERPROFILE%\.cloudflared\config.yml` and `00a69f8c-60af-45a2-87ec-b5112688c00e.json` to `%USERPROFILE%\.cloudflared\` on the shop PC.
+   - The `.json` file is the tunnel's password. Copy it with a USB stick or similar; **never commit or share it**.
+   - `cert.pem` isn't needed to run the tunnel.
+3. If the shop PC's Windows username differs, fix the `credentials-file:` path in `config.yml`.
+4. **Stop the tunnel on the old PC.** Two copies running would split customers between both PCs. Run `install-autostart.ps1 -Remove` there, or just don't run it.
+5. Run `install-autostart.ps1` on the shop PC.
+6. Check that https://quickprint-api.thiruvengadam.me/api/status shows `{"open": …}`.
 
 ## 5. First run checklist
 

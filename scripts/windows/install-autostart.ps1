@@ -1,5 +1,5 @@
-# Registers two Windows scheduled tasks that start the QuickPrint server and print agent
-# (hidden, auto-restarting) whenever this user logs in.
+# Registers Windows scheduled tasks that start the QuickPrint server, print agent and
+# (if configured) the Cloudflare tunnel — hidden, auto-restarting — whenever this user logs in.
 #   Install:  powershell -ExecutionPolicy Bypass -File scripts\windows\install-autostart.ps1
 #   Remove:   powershell -ExecutionPolicy Bypass -File scripts\windows\install-autostart.ps1 -Remove
 param([switch]$Remove)
@@ -7,7 +7,11 @@ param([switch]$Remove)
 $root = (Resolve-Path "$PSScriptRoot\..\..").Path
 $runner = Join-Path $root 'scripts\windows\run.ps1'
 
-foreach ($app in 'server', 'agent') {
+$apps = @('server', 'agent')
+# Include the Cloudflare tunnel once it has been set up on this PC.
+if ($Remove -or (Test-Path (Join-Path $env:USERPROFILE '.cloudflared\config.yml'))) { $apps += 'tunnel' }
+
+foreach ($app in $apps) {
   $name = "QuickPrint $app"
   if ($Remove) {
     Stop-ScheduledTask -TaskName $name -ErrorAction SilentlyContinue
