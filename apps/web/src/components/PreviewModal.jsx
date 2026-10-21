@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import Icon from './Icon.jsx';
 import PageThumb from './PageThumb.jsx';
 import { fileUrl } from '../lib/api.js';
 import { trySelection } from '../lib/range.js';
@@ -50,7 +51,7 @@ export default function PreviewModal({ item, onClose }) {
               {item.copies > 1 ? ` (${item.copies} copies)` : ''}
             </span>
           </div>
-          <button className="icon-btn" onClick={onClose} aria-label="Close">✕</button>
+          <button className="icon-btn" onClick={onClose} aria-label="Close"><Icon name="x" size={20} /></button>
         </header>
 
         <div className="modal-toolbar">
@@ -77,10 +78,10 @@ export default function PreviewModal({ item, onClose }) {
           </div>
         ) : (
           <div className="zoom-view">
-            <button className="zoom-nav" disabled={zoom === 0} onClick={() => setZoom(zoom - 1)} aria-label="Previous page">‹</button>
+            <button className="zoom-nav" disabled={zoom === 0} onClick={() => setZoom(zoom - 1)} aria-label="Previous page"><Icon name="chevronLeft" size={22} /></button>
             <PageThumb key={zoom} url={url} index={selected[zoom]} width={bigW} mono={!item.color}
               label={`Page ${selected[zoom] + 1} · ${zoom + 1} of ${selected.length} — tap to go back`} onClick={() => setZoom(null)} />
-            <button className="zoom-nav" disabled={zoom === selected.length - 1} onClick={() => setZoom(zoom + 1)} aria-label="Next page">›</button>
+            <button className="zoom-nav" disabled={zoom === selected.length - 1} onClick={() => setZoom(zoom + 1)} aria-label="Next page"><Icon name="chevronRight" size={22} /></button>
           </div>
         )}
 

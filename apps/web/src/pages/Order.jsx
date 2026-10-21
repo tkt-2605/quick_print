@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { api } from '../lib/api.js';
 import { plural, rupees } from '../lib/format.js';
+import Icon from '../components/Icon.jsx';
 import PickupPass from '../components/PickupPass.jsx';
 import { useStore } from '../lib/store.jsx';
 
@@ -101,18 +102,18 @@ export default function Order() {
       {order.stage === 'cancelled' ? <p className="notice error">This order was cancelled.</p> : null}
       {unpaid && counter ? (
         <div className="card pay-counter">
-          <div className="pay-amount">💰 Pay {rupees(order.amount)} at the counter</div>
+          <div className="pay-amount"><Icon name="banknote" size={24} /> Pay {rupees(order.amount)} at the counter</div>
           <p>Show your code to the shopkeeper and pay by cash or UPI. Printing starts right away.</p>
         </div>
       ) : null}
       {unpaid && !counter ? <p className="notice">Payment not completed yet. If money was deducted, it will update in a minute.</p> : null}
       {status?.printingPaused && ['queued', 'printing'].includes(order.stage) ? (
-        <p className="notice">⏳ Short delay at the shop — your prints are next in line.</p>
+        <p className="notice"><Icon name="pause" size={16} /> Short delay at the shop — your prints are next in line.</p>
       ) : null}
 
       {order.pin ? (
         <div className="card pin-card">
-          <span>🔒 Your private documents are waiting. Tell this PIN to the shopkeeper <b>when you are at the counter</b>:</span>
+          <span><Icon name="lock" size={16} /> Your private documents are waiting. Tell this PIN to the shopkeeper <b>when you are at the counter</b>:</span>
           <div className="pin">{order.pin}</div>
           <small className="muted">They print in front of you and are deleted right after.</small>
         </div>

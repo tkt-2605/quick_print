@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import Icon from '../components/Icon.jsx';
 import TrendingCard from '../components/TrendingCard.jsx';
 import { api } from '../lib/api.js';
 
@@ -18,10 +19,15 @@ export default function Trending() {
 
   return (
     <section>
-      <h1 className="page-title">🔥 Trending prints</h1>
-      <p className="muted">Popular school projects and printables, ready to print — no upload needed.</p>
+      <div className="page-head">
+        <h1 className="page-title">Trending prints</h1>
+        <p className="muted">Popular school projects and printables, ready to print — no upload needed.</p>
+      </div>
 
-      <input className="input search" placeholder="Search e.g. animals, map, chart…" value={query} onChange={(e) => setQuery(e.target.value)} />
+      <div className="search">
+        <Icon name="search" size={18} />
+        <input className="input" placeholder="Search animals, maps, charts…" value={query} onChange={(e) => setQuery(e.target.value)} />
+      </div>
       {tags.length ? (
         <div className="chips">
           <button className={`chip${!tag ? ' on' : ''}`} onClick={() => setTag('')}>All</button>

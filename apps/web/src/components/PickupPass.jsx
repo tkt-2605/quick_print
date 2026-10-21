@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
+import Icon from './Icon.jsx';
 import { useStore } from '../lib/store.jsx';
 
 /**
@@ -34,7 +35,7 @@ export default function PickupPass({ code, sensitive }) {
   return (
     <div className="pickup-pass">
       {qr ? <img src={qr} width="180" height="180" alt={`QR code for order ${code}`} /> : null}
-      <button className="btn btn-ghost btn-sm" onClick={share}>📤 Send pickup pass to someone else</button>
+      <button className="btn btn-light btn-sm" onClick={share}><Icon name="share" size={16} /> Send pickup pass to someone else</button>
       <small className="muted">Anyone with this code can collect your prints — only share it with someone you trust.</small>
     </div>
   );

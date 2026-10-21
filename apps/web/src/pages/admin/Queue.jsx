@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { plural, rupees, timeAgo } from '../../lib/format.js';
 import QrScanner from './QrScanner.jsx';
+import Icon from '../../components/Icon.jsx';
 import { describeOpening, formatTime } from '../../lib/hours.js';
 
 const STAGE_LABEL = {
-  pending_payment: '💰 Waiting for payment',
+  pending_payment: 'Waiting for payment',
   queued: 'Queued',
   printing: 'Printing',
   awaiting_release: 'Waiting for customer PIN',
@@ -87,7 +88,7 @@ export default function Queue({ api }) {
       <div className="printer-strip">
         {data.printers.filter((p) => p.enabled).map((p) => (
           <span key={p.id} className={`printer-pill ${p.online ? 'ok' : 'bad'}`}>
-            {p.online ? '●' : '○'} {p.label} <small>{p.online ? 'online' : p.lastSeen ? p.status : 'agent not running'}</small>
+            <span className="pill-dot" /> {p.label} <small>{p.online ? 'online' : p.lastSeen ? p.status : 'agent not running'}</small>
           </span>
         ))}
       </div>
@@ -135,12 +136,12 @@ function Handover({ api, printers, act }) {
 
   const o = result?.order;
   const verdict = !o ? null
-    : o.status === 'collected' ? ['bad', `⚠ Already collected ${timeAgo(o.closedAt)} — do not hand over again`]
-    : o.status === 'cancelled' ? ['bad', '⚠ This order was cancelled']
-    : o.status === 'pending_payment' ? ['warn', `💰 Not paid yet — collect ${rupees(o.amount)} (cash or UPI), then press Paid`]
-    : o.stage === 'ready' ? ['ok', `✅ Ready — hand over to the customer (${o.customerName})`]
-    : o.stage === 'awaiting_release' ? ['warn', '🔒 Private order — ask for the 4-digit PIN, then release to print']
-    : ['warn', '⏳ Not finished printing yet'];
+    : o.status === 'collected' ? ['bad', 'alert', `Already collected ${timeAgo(o.closedAt)} — do not hand over again`]
+    : o.status === 'cancelled' ? ['bad', 'alert', 'This order was cancelled']
+    : o.status === 'pending_payment' ? ['warn', 'banknote', `Not paid yet — collect ${rupees(o.amount)} (cash or UPI), then press Paid`]
+    : o.stage === 'ready' ? ['ok', 'checkCircle', `Ready — hand over to the customer (${o.customerName})`]
+    : o.stage === 'awaiting_release' ? ['warn', 'lock', 'Private order — ask for the 4-digit PIN, then release to print']
+    : ['warn', 'clock', 'Not finished printing yet'];
 
   return (
     <>
@@ -151,7 +152,7 @@ function Handover({ api, printers, act }) {
         <input className="input" placeholder="Order code" value={code} maxLength={5}
           onChange={(e) => setCode(e.target.value.toUpperCase())} />
         <button className="btn btn-primary">Check</button>
-        <button type="button" className="btn btn-ghost" onClick={() => setScanning(true)}>📷 Scan QR</button>
+        <button type="button" className="btn btn-ghost" onClick={() => setScanning(true)}><Icon name="qr" size={18} /> Scan QR</button>
       </form>
 
       {scanning ? <QrScanner onCode={lookup} onClose={() => setScanning(false)} /> : null}
@@ -161,11 +162,11 @@ function Handover({ api, printers, act }) {
           <div className="modal handover" onClick={(e) => e.stopPropagation()}>
             <header className="modal-head">
               <strong>Pickup check · {code}</strong>
-              <button className="icon-btn" onClick={() => setResult(null)} aria-label="Close">✕</button>
+              <button className="icon-btn" onClick={() => setResult(null)} aria-label="Close"><Icon name="x" size={20} /></button>
             </header>
             <div className="handover-body">
-              {result.error ? <p className="verdict bad">❌ {result.error}</p> : null}
-              {verdict ? <p className={`verdict ${verdict[0]}`}>{verdict[1]}</p> : null}
+              {result.error ? <p className="verdict bad"><Icon name="x" size={18} /> {result.error}</p> : null}
+              {verdict ? <p className={`verdict ${verdict[0]}`}><Icon name={verdict[1]} size={18} /> {verdict[2]}</p> : null}
               {o ? (
                 <OrderCard o={o} printers={printers} api={api} act={async (fn) => {
                   await act(fn);
@@ -188,15 +189,15 @@ function ShopPanel({ shop, api, act }) {
   if (!shop) return null;
 
   const state = shop.open
-    ? ['ok', `🟢 OPEN — taking orders until ${formatTime(shop.lastOrderAt)}`]
+    ? ['ok', 'checkCircle', `Open — taking orders until ${formatTime(shop.lastOrderAt)}`]
     : shop.reason === 'manual'
-      ? ['bad', `🔴 CLOSED by you${shop.nextOpen ? ` — reopens ${describeOpening(shop.nextOpen)}` : ' — until you reopen'}`]
-      : ['bad', `🌙 CLOSED (shop hours)${shop.nextOpen ? ` — opens ${describeOpening(shop.nextOpen)}` : ''}`];
+      ? ['bad', 'x', `Closed by you${shop.nextOpen ? ` — reopens ${describeOpening(shop.nextOpen)}` : ' — until you reopen'}`]
+      : ['bad', 'moon', `Closed (shop hours)${shop.nextOpen ? ` — opens ${describeOpening(shop.nextOpen)}` : ''}`];
 
   return (
     <div className="card shop-panel">
       <div className="row">
-        <span className={`verdict ${state[0]}`}>{state[1]}</span>
+        <span className={`verdict ${state[0]}`}><Icon name={state[1]} size={18} /> {state[2]}</span>
         {shop.reason === 'manual' ? (
           <button className="btn btn-primary btn-sm" onClick={() => act(() => api.openShop())}>Reopen now</button>
         ) : (
@@ -204,7 +205,7 @@ function ShopPanel({ shop, api, act }) {
         )}
         <button className={`btn btn-sm ${shop.printingPaused ? 'btn-primary' : 'btn-ghost'}`}
           onClick={() => act(() => api.setPrintingPaused(!shop.printingPaused))}>
-          {shop.printingPaused ? '▶ Resume printing' : '⏸ Pause printing'}
+          {shop.printingPaused ? <><Icon name="printer" size={16} /> Resume printing</> : <><Icon name="pause" size={16} /> Pause printing</>}
         </button>
       </div>
       {shop.printingPaused ? <p className="notice">Printing is paused. Orders are still accepted and wait in the queue; customers see "short delay".</p> : null}
@@ -232,7 +233,7 @@ function OrderCard({ o, printers, act, api }) {
       <header>
         <div>
           <span className="order-code sm">{o.code}</span>
-          {o.sensitive ? <span className="chip warn">🔒 private</span> : null}
+          {o.sensitive ? <span className="chip warn"><Icon name="lock" size={12} /> Private</span> : null}
         </div>
         <span className={`stage stage-${o.stage}`}>{STAGE_LABEL[o.stage] || o.stage}</span>
       </header>
@@ -296,8 +297,8 @@ function OrderCard({ o, printers, act, api }) {
 
       {o.status === 'pending_payment' ? (
         <footer className="row">
-          <button className="btn btn-primary btn-sm" onClick={() => act(() => api.markPaid(o.id, 'cash'))}>💵 Paid cash {rupees(o.amount)}</button>
-          <button className="btn btn-primary btn-sm" onClick={() => act(() => api.markPaid(o.id, 'upi'))}>📱 Paid UPI</button>
+          <button className="btn btn-primary btn-sm" onClick={() => act(() => api.markPaid(o.id, 'cash'))}><Icon name="banknote" size={16} /> Paid cash {rupees(o.amount)}</button>
+          <button className="btn btn-primary btn-sm" onClick={() => act(() => api.markPaid(o.id, 'upi'))}><Icon name="phone" size={16} /> Paid UPI</button>
           <button className="btn btn-ghost btn-sm danger" onClick={() => confirm(`Cancel unpaid order ${o.code}?`) && act(() => api.cancel(o.id))}>Cancel</button>
         </footer>
       ) : null}

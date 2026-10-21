@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Icon from '../components/Icon.jsx';
 import PageThumb from '../components/PageThumb.jsx';
 import PreviewModal, { Segmented } from '../components/PreviewModal.jsx';
 import { api, fileUrl } from '../lib/api.js';
@@ -40,38 +41,53 @@ function CartItem({ item, onPreview }) {
   return (
     <article className="cart-item card">
       <div className="cart-thumb">
-        <PageThumb url={fileUrl(item.fileId, item.version)} index={first} width={110} mono={!item.color} onClick={onPreview} />
-        <button className="btn btn-ghost btn-sm" onClick={onPreview}>Preview</button>
+        <PageThumb url={fileUrl(item.fileId, item.version)} index={first} width={104} mono={!item.color} onClick={onPreview} />
+        <button className="btn btn-light btn-sm" onClick={onPreview}><Icon name="eye" size={16} /> Preview</button>
       </div>
 
       <div className="cart-opts">
         <div className="cart-item-head">
           <div>
-            <strong className="file-name">{item.sensitive ? '🔒 ' : ''}{item.name}</strong>
-            <span className="muted">{plural(item.pages, 'page')}{item.kind === 'image' ? ' · photo' : ''}</span>
+            <strong className="file-name">{item.name}</strong>
+            <span className="file-meta">
+              <Icon name={item.kind === 'image' ? 'image' : 'file'} size={14} /> {plural(item.pages, 'page')}{item.kind === 'image' ? ' · photo' : ''}
+              {item.sensitive ? <span className="tag-private"><Icon name="lock" size={12} /> Private</span> : null}
+            </span>
           </div>
-          <button className="icon-btn" onClick={() => removeItem(item.key)} aria-label="Remove">🗑</button>
+          <button className="icon-btn danger" onClick={() => removeItem(item.key)} aria-label="Remove" title="Remove"><Icon name="trash" size={18} /></button>
         </div>
 
-        <Segmented value={item.color ? 'color' : 'bw'} onChange={(v) => updateItem(item.key, { color: v === 'color' })}
-          options={[['bw', 'B&W'], ['color', 'Colour']]} />
-
-        {item.pages > 1 ? (
-          <Segmented value={item.duplex ? 'double' : 'single'} onChange={(v) => updateItem(item.key, { duplex: v === 'double' })}
-            options={[['single', 'Single side'], ['double', 'Both sides']]} />
-        ) : null}
-
-        {item.kind === 'image' && !item.trending ? (
-          <Segmented value={item.fit} onChange={(v) => !fitBusy && changeFit(v)}
-            options={[['fit', 'Whole photo'], ['fill', 'Fill page']]} />
-        ) : null}
+        <div className="opt-grid">
+          <div className="opt">
+            <span className="opt-label">Print</span>
+            <Segmented value={item.color ? 'color' : 'bw'} onChange={(v) => updateItem(item.key, { color: v === 'color' })}
+              options={[['bw', 'B&W'], ['color', 'Colour']]} />
+          </div>
+          {item.pages > 1 ? (
+            <div className="opt">
+              <span className="opt-label">Sides</span>
+              <Segmented value={item.duplex ? 'double' : 'single'} onChange={(v) => updateItem(item.key, { duplex: v === 'double' })}
+                options={[['single', 'Single'], ['double', 'Both sides']]} />
+            </div>
+          ) : null}
+          {item.kind === 'image' && !item.trending ? (
+            <div className="opt">
+              <span className="opt-label">Photo</span>
+              <Segmented value={item.fit} onChange={(v) => !fitBusy && changeFit(v)}
+                options={[['fit', 'Whole photo'], ['fill', 'Fill page']]} />
+            </div>
+          ) : null}
+          <div className="opt">
+            <span className="opt-label">Copies</span>
+            <div className="stepper" aria-label="Copies">
+              <button onClick={() => updateItem(item.key, { copies: Math.max(1, item.copies - 1) })} aria-label="Fewer copies"><Icon name="minus" size={16} /></button>
+              <span>{item.copies}</span>
+              <button onClick={() => updateItem(item.key, { copies: Math.min(100, item.copies + 1) })} aria-label="More copies"><Icon name="plus" size={16} /></button>
+            </div>
+          </div>
+        </div>
 
         <div className="row">
-          <div className="stepper" aria-label="Copies">
-            <button onClick={() => updateItem(item.key, { copies: Math.max(1, item.copies - 1) })} aria-label="Fewer copies">−</button>
-            <span>{plural(item.copies, 'copy', 'copies')}</span>
-            <button onClick={() => updateItem(item.key, { copies: Math.min(100, item.copies + 1) })} aria-label="More copies">+</button>
-          </div>
           {item.pages > 1 ? (
             <label className="check">
               <input type="checkbox" checked={customRange} onChange={(e) => {
@@ -92,8 +108,8 @@ function CartItem({ item, onPreview }) {
         ) : null}
 
         <div className="cart-item-foot">
-          <span className="muted">
-            {pages ? `${plural(pages.length, 'page')} → ${plural(sheetsFor(pages.length, item.copies, item.duplex), 'sheet')}` : '—'}
+          <span className="muted small">
+            {pages ? `${plural(pages.length, 'page')} · ${plural(sheetsFor(pages.length, item.copies, item.duplex), 'sheet')} of A4` : '—'}
           </span>
           <b>{rupees(priceOf(item))}</b>
         </div>
@@ -197,7 +213,7 @@ export default function Cart() {
       <section>
         <div className="section-head">
           <h1 className="page-title">Your prints</h1>
-          <Link to="/" className="btn btn-ghost btn-sm">+ Add files</Link>
+          <Link to="/" className="btn btn-light btn-sm"><Icon name="plus" size={16} /> Add files</Link>
         </div>
         {cart.map((item) => <CartItem key={item.key} item={item} onPreview={() => setPreview(item.key)} />)}
       </section>
@@ -210,7 +226,7 @@ export default function Cart() {
           <dt>Total</dt><dd className="total">{rupees(total)}</dd>
         </dl>
         {cart.some((i) => i.sensitive) ? (
-          <p className="notice">🔒 This order has private documents. You'll get a PIN — they print only when you show it at the counter.</p>
+          <p className="notice"><Icon name="lock" size={16} /> This order has private documents. You'll get a PIN — they print only when you show it at the counter.</p>
         ) : null}
         {online !== null && !canOrder ? (
           <p className="notice error">The shop isn't taking orders right now. Your cart is saved — place the order when we're open.</p>

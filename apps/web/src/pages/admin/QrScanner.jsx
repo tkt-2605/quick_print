@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import jsQR from 'jsqr';
+import Icon from '../../components/Icon.jsx';
 
 const CODE_RE = /[A-HJ-NP-Z2-9]{5}/;
 
@@ -52,7 +53,7 @@ export default function QrScanner({ onCode, onClose }) {
       <div className="modal scanner" onClick={(e) => e.stopPropagation()}>
         <header className="modal-head">
           <strong>Scan pickup QR</strong>
-          <button className="icon-btn" onClick={onClose} aria-label="Close">✕</button>
+          <button className="icon-btn" onClick={onClose} aria-label="Close"><Icon name="x" size={20} /></button>
         </header>
         {error ? <p className="notice error">{error}</p> : <video ref={video} playsInline muted />}
       </div>

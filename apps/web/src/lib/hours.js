@@ -49,6 +49,12 @@ export function nextOpeningFromHours(hours, now = Date.now()) {
   return null;
 }
 
+/** Today's opening hours in shop time, e.g. { open: '09:00', close: '20:30' }, or null if closed today. */
+export function todayHours(hours, now = Date.now()) {
+  if (!hours) return undefined;
+  return hours[JS_DAYS[new Date(now + IST_MS).getUTCDay()]] || null;
+}
+
 /** Group days with identical hours: [["Mon – Sat", "9:00 AM – 8:30 PM"], ["Sun", "Closed"]] */
 export function hoursTable(hours) {
   if (!hours) return [];

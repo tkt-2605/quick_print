@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import Icon from './Icon.jsx';
 import { describeOpening, formatTime, hoursTable, nextOpeningFromHours, shouldBeOpen } from '../lib/hours.js';
 import { useStore } from '../lib/store.jsx';
 
@@ -8,14 +9,14 @@ export function ShopClosed() {
   const hours = status?.hours || config?.status?.hours;
   const shop = config?.shop || {};
 
-  let icon = '🌙';
+  let icon = 'moon';
   let title = "We're closed now";
   let detail = null;
 
   if (online === false) {
     const next = nextOpeningFromHours(hours);
     if (shouldBeOpen(hours)) {
-      icon = '⚠️';
+      icon = 'alert';
       title = "We can't reach the shop right now";
       detail = 'Possibly a power cut or internet problem. Please try again in a few minutes.';
     } else if (next) {
@@ -39,7 +40,7 @@ export function ShopClosed() {
 
   return (
     <section className="card shop-closed">
-      <div className="closed-icon" aria-hidden>{icon}</div>
+      <div className={`closed-icon${icon === 'alert' ? ' warn' : ''}`}><Icon name={icon} size={28} /></div>
       <h1>{title}</h1>
       {detail ? <p className="closed-detail">{detail}</p> : null}
 
@@ -51,11 +52,11 @@ export function ShopClosed() {
         </table>
       ) : null}
 
-      {shop.address ? <p className="muted">📍 {shop.address}</p> : null}
+      {shop.address ? <p className="closed-address"><Icon name="pin" size={16} /> {shop.address}</p> : null}
       {phone ? (
         <div className="row center">
-          <a className="btn btn-ghost btn-sm" href={`tel:${phone}`}>📞 Call</a>
-          <a className="btn btn-ghost btn-sm" href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer">💬 WhatsApp</a>
+          <a className="btn btn-ghost btn-sm" href={`tel:${phone}`}><Icon name="phone" size={16} /> Call</a>
+          <a className="btn btn-ghost btn-sm" href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer"><Icon name="message" size={16} /> WhatsApp</a>
         </div>
       ) : null}
       <p className="muted small">Already ordered? Your order code is in <Link to="/orders">My orders</Link> — show it at the counter.</p>
@@ -69,9 +70,9 @@ export function StatusBanner() {
   if (!canOrder) return null;
   const notes = [];
   if (status.minutesLeft != null && status.minutesLeft <= 30) {
-    notes.push(`⏰ Last orders at ${formatTime(status.lastOrderAt)} — we close at ${formatTime(status.closesAt)}.`);
+    notes.push(['clock', `Last orders at ${formatTime(status.lastOrderAt)} — we close at ${formatTime(status.closesAt)}.`]);
   }
-  if (status.printingPaused) notes.push('⏳ Short delay at the shop — orders are accepted and will print shortly.');
+  if (status.printingPaused) notes.push(['pause', 'Short delay at the shop — orders are accepted and will print shortly.']);
   if (!notes.length) return null;
-  return <div className="notice status-banner">{notes.map((n) => <div key={n}>{n}</div>)}</div>;
+  return <div className="notice status-banner">{notes.map(([icon, text]) => <div key={text}><Icon name={icon} size={16} /> {text}</div>)}</div>;
 }

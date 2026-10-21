@@ -18,50 +18,63 @@ export default function Home() {
     api.trending().then(setTrending, () => {});
   }, []);
 
+  const steps = [
+    ['Upload', 'PDF or photos from your phone'],
+    ['Check the preview', 'Every A4 sheet, exactly as it will print'],
+    counter ? ['Pay at the counter', 'Cash or UPI — we print right away'] : ['Pay online', 'UPI, cards or wallets'],
+    ['Collect', 'Show your order code'],
+  ];
+
   return (
     <>
       <ActiveOrders />
+
       {online !== null && !canOrder ? <ShopClosed /> : (
-      <section className="hero">
-        <div className="hero-text">
-          <h1>Print in minutes.</h1>
-          <p>{counter
-            ? 'Upload and preview on your phone, pay at the counter — we print it right away.'
-            : 'Upload, preview, pay — your prints start the moment you pay. Collect at the counter.'}</p>
-          {config ? (
-            <div className="price-pills">
-              <span>B&W <b>{rupees(config.prices.bw)}</b>/side</span>
-              <span>Colour <b>{rupees(config.prices.color)}</b>/side</span>
-            </div>
-          ) : null}
-        </div>
-        <Uploader />
-      </section>
+        <section className="intro">
+          <div className="intro-text">
+            <p className="kicker">Printing · Photocopy · A4</p>
+            <h1>Send your prints from your phone. Pick them up at the counter.</h1>
+            <p className="lead">
+              No pen drives, no WhatsApp forwarding, no waiting while we find your file.
+              Upload here, check how it will look, and your prints are ready when you reach the counter.
+            </p>
+          </div>
+          <Uploader />
+          <div className="intro-prices">
+            {config ? (
+              <table className="price-list">
+                <caption>Price list</caption>
+                <tbody>
+                  <tr><th>Black &amp; white</th><td><b>{rupees(config.prices.bw)}</b> per side</td></tr>
+                  <tr><th>Colour</th><td><b>{rupees(config.prices.color)}</b> per side</td></tr>
+                  <tr><th>Both sides</th><td>charged per printed side</td></tr>
+                  <tr><th>Private documents</th><td>no extra charge</td></tr>
+                </tbody>
+              </table>
+            ) : null}
+          </div>
+        </section>
       )}
 
-      <section className="steps">
-        {[
-          ['1', 'Upload', 'PDF or photos from your phone'],
-          ['2', 'Preview', 'Exactly how each A4 sheet will look'],
-          counter ? ['3', 'Pay at counter', 'Cash or UPI — printing starts instantly'] : ['3', 'Pay', 'UPI, cards, wallets'],
-          ['4', 'Collect', 'Show your order code at the counter'],
-        ].map(([n, t, d]) => (
-          <div className="step" key={n}>
-            <span className="step-n">{n}</span>
-            <div>
-              <b>{t}</b>
-              <small>{d}</small>
-            </div>
-          </div>
-        ))}
+      <section className="how">
+        <h2 className="rule-title">How it works</h2>
+        <ol className="steps-strip">
+          {steps.map(([title, text], i) => (
+            <li key={title}>
+              <span className="num">{i + 1}</span>
+              <div><b>{title}</b><span>{text}</span></div>
+            </li>
+          ))}
+        </ol>
       </section>
 
       {trending.length ? (
         <section>
-          <div className="section-head">
-            <h2>🔥 Trending prints</h2>
-            <Link to="/trending">See all</Link>
+          <div className="rule-head">
+            <h2 className="rule-title">Trending prints</h2>
+            <Link to="/trending">See all →</Link>
           </div>
+          <p className="muted section-note">School projects and printables we print often — no upload needed.</p>
           <div className="trend-row">
             {trending.slice(0, 8).map((t) => <TrendingCard key={t.id} t={t} />)}
           </div>

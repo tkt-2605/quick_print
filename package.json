@@ -12,7 +12,8 @@
     "dev:web": "npm run dev -w @quickprint/web",
     "agent": "npm start -w @quickprint/agent",
     "build": "npm run build -w @quickprint/web",
-    "start": "npm start -w @quickprint/server"
+    "start": "npm start -w @quickprint/server",
+    "demo": "node scripts/demo.mjs"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

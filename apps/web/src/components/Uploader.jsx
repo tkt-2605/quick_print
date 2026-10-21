@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Icon from './Icon.jsx';
 import { api } from '../lib/api.js';
 import { useStore } from '../lib/store.jsx';
 
@@ -45,6 +46,10 @@ export default function Uploader() {
 
   return (
     <div className="uploader card">
+      <div className="uploader-head">
+        <b>Start a print order</b>
+        <span>A4 · {formats.map((f) => f.replace('.', '').toUpperCase()).filter((f) => f !== 'JPEG').join(', ')}</span>
+      </div>
       <div
         className={`dropzone${dragging ? ' dragging' : ''}`}
         onClick={() => input.current.click()}
@@ -62,9 +67,8 @@ export default function Uploader() {
         tabIndex={0}
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && input.current.click()}
       >
-        <div className="dropzone-icon" aria-hidden>⬆</div>
-        <strong>{busy ? 'Uploading…' : 'Tap to upload files'}</strong>
-        <span className="muted">or drag & drop · {formats.join(' ').toUpperCase().replaceAll('.', '')} · A4 only</span>
+        <span className="btn btn-primary btn-lg dropzone-btn"><Icon name="upload" size={18} /> {busy ? 'Uploading…' : 'Choose files'}</span>
+        <span className="muted small">or drag &amp; drop them here · up to {config?.maxUploadMb || 50} MB each</span>
         <input ref={input} type="file" multiple hidden accept={formats.join(',')}
           onChange={(e) => {
             handleFiles(e.target.files);
@@ -76,8 +80,8 @@ export default function Uploader() {
         <input type="checkbox" checked={sensitive} onChange={(e) => setSensitive(e.target.checked)} />
         <span className="switch" aria-hidden />
         <span>
-          <b>🔒 Private documents</b>
-          <small>For Aadhaar, PAN, bank statements, certificates. Encrypted, hidden from staff, printed only when you show your PIN at the counter, then deleted.</small>
+          <b><Icon name="lock" size={15} /> Private documents</b>
+          <small>For Aadhaar, PAN, bank statements. Encrypted, hidden from staff, printed only after you give your PIN at the counter, then deleted.</small>
         </span>
       </label>
 
@@ -85,7 +89,7 @@ export default function Uploader() {
         <ul className="upload-list">
           {uploads.map((u) => (
             <li key={u.id} className={u.error ? 'error' : ''}>
-              <span className="upload-name">{u.name}</span>
+              <span className="upload-name"><Icon name={u.error ? 'alert' : u.progress >= 1 ? 'checkCircle' : 'file'} size={16} /> {u.name}</span>
               {u.error ? <span className="upload-error">{u.error}</span> : (
                 <span className="progress"><span style={{ width: `${Math.round(u.progress * 100)}%` }} /></span>
               )}

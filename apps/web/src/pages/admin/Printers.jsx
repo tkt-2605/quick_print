@@ -52,7 +52,7 @@ function PrinterCard({ printer, api, onSaved, isNew }) {
     <div className="card printer-card">
       {!isNew ? (
         <div className={`printer-pill ${p.online ? 'ok' : 'bad'}`}>
-          {p.online ? '● online' : `○ ${p.status}`}{p.lastSeen ? ` · seen ${timeAgo(p.lastSeen)}` : ''}
+          <span className="pill-dot" /> {p.online ? 'Online' : p.status}{p.lastSeen ? ` · seen ${timeAgo(p.lastSeen)}` : ''}
         </div>
       ) : null}
       <label className="field"><span>Name shown in dashboard</span>
