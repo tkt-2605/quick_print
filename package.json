@@ -1,0 +1,23 @@
+{
+  "name": "quickprint",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Upload, pay and auto-print store for a stationery shop",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,web,agent -c blue,cyan,magenta \"npm run dev -w @quickprint/server\" \"npm run dev -w @quickprint/web\" \"npm start -w @quickprint/agent\"",
+    "dev:server": "npm run dev -w @quickprint/server",
+    "dev:web": "npm run dev -w @quickprint/web",
+    "agent": "npm start -w @quickprint/agent",
+    "build": "npm run build -w @quickprint/web",
+    "start": "npm start -w @quickprint/server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}

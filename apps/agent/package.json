@@ -1,0 +1,14 @@
+{
+  "name": "@quickprint/agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Runs on the shop PC: pulls paid jobs from the QuickPrint server and prints them",
+  "scripts": {
+    "start": "node src/index.js",
+    "printers": "node src/list-printers.js"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1"
+  }
+}
