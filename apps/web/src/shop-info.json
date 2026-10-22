@@ -5,12 +5,12 @@
   "phone": "7397086633",
   "email": "tkthiruvengadam2605@gmail.com",
   "hours": {
-    "mon": { "open": "09:00", "close": "20:30" },
-    "tue": { "open": "09:00", "close": "20:30" },
-    "wed": { "open": "09:00", "close": "20:30" },
-    "thu": { "open": "09:00", "close": "20:30" },
-    "fri": { "open": "09:00", "close": "20:30" },
-    "sat": { "open": "09:00", "close": "20:30" },
+    "mon": { "open": "09:00", "close": "21:00" },
+    "tue": { "open": "09:00", "close": "21:00" },
+    "wed": { "open": "09:00", "close": "21:00" },
+    "thu": { "open": "09:00", "close": "21:00" },
+    "fri": { "open": "09:00", "close": "21:00" },
+    "sat": { "open": "09:00", "close": "21:00" },
     "sun": null
   }
 }

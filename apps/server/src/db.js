@@ -114,7 +114,7 @@ export function tx(fn) {
 
 // ---- settings ----
 
-const DAY_HOURS = { open: '09:00', close: '20:30' };
+const DAY_HOURS = { open: '09:00', close: '21:00' };
 
 export const DEFAULT_SETTINGS = {
   price_bw: 200, // paise per printed side
