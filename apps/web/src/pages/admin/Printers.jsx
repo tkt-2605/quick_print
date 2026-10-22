@@ -21,7 +21,7 @@ export default function Printers({ api }) {
         {printers.map((p) => <PrinterCard key={p.id} printer={p} api={api} onSaved={load} />)}
       </div>
       {adding ? (
-        <PrinterCard printer={{ label: '', windowsName: '', color: false, duplex: 'manual', enabled: true }} api={api} isNew
+        <PrinterCard printer={{ label: '', windowsName: '', color: false, duplex: 'none', enabled: true }} api={api} isNew
           onSaved={() => {
             setAdding(false);
             load();
@@ -65,10 +65,11 @@ function PrinterCard({ printer, api, onSaved, isNew }) {
       <label className="check"><input type="checkbox" checked={p.color} onChange={(e) => set({ color: e.target.checked })} /> Can print colour</label>
       <label className="field"><span>Double-sided printing</span>
         <select className="input" value={p.duplex} onChange={(e) => set({ duplex: e.target.value })}>
-          <option value="manual">Manual — print fronts, I flip the stack, print backs</option>
+          <option value="none">Off — single side only on this printer</option>
           <option value="auto">Automatic — printer has a duplex unit</option>
-          <option value="none">Not allowed on this printer</option>
+          <option value="manual">Manual — print fronts, I flip the stack, print backs</option>
         </select>
+        <small className="muted">Customers only see "Both sides" if at least one printer in use allows it.</small>
       </label>
       {p.duplex === 'manual' && !isNew ? (
         <fieldset className="flip-settings">

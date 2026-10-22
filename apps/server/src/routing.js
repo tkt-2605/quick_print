@@ -5,6 +5,15 @@ const STALE_MS = 60_000;
 
 export const printerOnline = (p) => p.status === 'ready' && p.last_seen && Date.now() - p.last_seen < STALE_MS;
 
+/**
+ * Which jobs can be double-sided right now: any enabled printer that allows it (Admin → Printers →
+ * "Double-sided printing"). Colour double-sided needs a colour printer that allows it.
+ */
+export function duplexSupport() {
+  const ok = listPrinters().filter((p) => p.enabled && p.duplex !== 'none');
+  return { bw: ok.length > 0, color: ok.some((p) => p.color) };
+}
+
 /** Pick the best idle printer for a queued item, or null if it must wait. */
 export function pickPrinter(item, idle, settings) {
   let candidates = idle.filter((p) => (!item.color || p.color) && (!item.duplex || p.duplex !== 'none'));

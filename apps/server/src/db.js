@@ -176,8 +176,8 @@ export function updateSettings(patch) {
 if (q('SELECT COUNT(*) AS n FROM printers').get().n === 0) {
   const insert = q(`INSERT INTO printers(id, label, windows_name, color, duplex, reverse_back, rotate_back, enabled, sort)
                     VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`);
-  insert.run('epson-l3250', 'Epson EcoTank L3250', 'EPSON L3250 Series', 1, 'manual', 1, 0, 1, 1);
-  insert.run('canon-lbp2900', 'Canon LBP2900B (B&W laser)', 'Canon LBP2900', 0, 'manual', 1, 0, 0, 2);
+  insert.run('epson-l3250', 'Epson EcoTank L3250', 'EPSON L3250 Series', 1, 'none', 1, 0, 1, 1);
+  insert.run('canon-lbp2900', 'Canon LBP2900B (B&W laser)', 'Canon LBP2900', 0, 'none', 1, 0, 0, 2);
 }
 
 export const listPrinters = () => q('SELECT * FROM printers ORDER BY sort, label').all();

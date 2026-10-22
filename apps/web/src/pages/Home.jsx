@@ -47,7 +47,7 @@ export default function Home() {
                 <tbody>
                   <tr><th>Black &amp; white</th><td><b>{rupees(config.prices.bw)}</b> per side</td></tr>
                   <tr><th>Colour</th><td><b>{rupees(config.prices.color)}</b> per side</td></tr>
-                  <tr><th>Both sides</th><td>same price per side</td></tr>
+                  {config.duplex?.bw ? <tr><th>Both sides</th><td>same price per side</td></tr> : null}
                 </tbody>
               </table>
             ) : null}

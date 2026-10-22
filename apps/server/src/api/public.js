@@ -7,6 +7,7 @@ import { acceptedFormats, getFile, ingestFile, readPdf, refitImage } from '../fi
 import { parseRange } from '../lib/range.js';
 import { publicOrderView } from '../orders.js';
 import { confirmCheckout, createGatewayOrder } from '../payments.js';
+import { duplexSupport } from '../routing.js';
 import { shopStatus } from '../shop.js';
 import { UserError, newId, newOrderCode, newPin, safeEqual } from '../util.js';
 
@@ -50,6 +51,7 @@ r.get('/config', (req, res) => {
     prices: { bw: s.price_bw, color: s.price_color },
     formats: acceptedFormats(),
     maxUploadMb: config.maxUploadMb,
+    duplex: duplexSupport(),
     paymentMode: config.paymentMode,
     payAtCounter: config.paymentMode === 'counter' || s.counter_payment,
     razorpayKeyId: config.paymentMode === 'razorpay' ? config.razorpay.keyId : null,
@@ -110,6 +112,7 @@ r.post('/orders', requireOpen, async (req, res) => {
   if (items.length > 50) throw new UserError('Too many files in one order (max 50)');
 
   const s = getSettings();
+  const canDuplex = duplexSupport();
   const lines = items.map((it) => {
     const file = liveFile(it.fileId);
     let pages;
@@ -121,6 +124,9 @@ r.post('/orders', requireOpen, async (req, res) => {
     const copies = Math.min(100, Math.max(1, Math.floor(Number(it.copies) || 1)));
     const color = it.color ? 1 : 0;
     const duplex = it.duplex && pages.length > 1 ? 1 : 0;
+    if (duplex && !(color ? canDuplex.color : canDuplex.bw)) {
+      throw new UserError(`${file.name}: double-sided printing isn't available right now. Please choose single side.`);
+    }
     const price = pages.length * copies * (color ? s.price_color : s.price_bw);
     return { file, pages, copies, color, duplex, price };
   });

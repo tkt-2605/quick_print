@@ -20,7 +20,7 @@ function loadRazorpay() {
 }
 
 function CartItem({ item, onPreview }) {
-  const { updateItem, removeItem, priceOf } = useStore();
+  const { updateItem, removeItem, priceOf, canDuplex } = useStore();
   const [customRange, setCustomRange] = useState(!!item.range);
   const [fitBusy, setFitBusy] = useState(false);
   const { pages, error } = trySelection(item);
@@ -62,7 +62,7 @@ function CartItem({ item, onPreview }) {
             <Segmented value={item.color ? 'color' : 'bw'} onChange={(v) => updateItem(item.key, { color: v === 'color' })}
               options={[['bw', 'B&W'], ['color', 'Colour']]} />
           </div>
-          {item.pages > 1 ? (
+          {item.pages > 1 && canDuplex(item.color) ? (
             <div className="opt">
               <span className="opt-label">Sides</span>
               <Segmented value={item.duplex ? 'double' : 'single'} onChange={(v) => updateItem(item.key, { duplex: v === 'double' })}

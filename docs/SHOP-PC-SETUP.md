@@ -88,7 +88,9 @@ https://quickprint.thiruvengadam.me/admin → log in with `ADMIN_PASSWORD`.
 
 1. **Printers** tab: *Epson EcoTank L3250* → Windows printer name must match step 3 exactly
    (default `EPSON L3250 Series`) → tick **Use this printer** → Save. Status should turn **Online**.
-2. **Print 3-sheet duplex test** → go to **Print queue** → when it says **FLIP NEEDED**, take the
+   **Double-sided printing → Off** (the L3250 has no duplex unit). Customers then only see single side.
+   "Both sides" appears on the site only when some printer in use allows it.
+2. *Only if you later choose Manual double-sided:* **Print 3-sheet duplex test** → go to **Print queue** → when it says **FLIP NEEDED**, take the
    printed sheets, flip the stack, put it back in the rear tray, press **Reloaded — print back sides**.
    Check each BACK is behind its FRONT and upright. If the order is wrong, toggle *reverse order*;
    if upside-down, toggle *rotate 180°*; repeat the test until right.

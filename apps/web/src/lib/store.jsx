@@ -108,6 +108,14 @@ export function StoreProvider({ children }) {
   );
   const total = useMemo(() => cart.reduce((a, i) => a + priceOf(i), 0), [cart, priceOf]);
 
+  // "Both sides" is only offered when a printer allows it (colour needs a colour printer that does).
+  const canDuplex = useCallback((color) => !!config?.duplex?.[color ? 'color' : 'bw'], [config]);
+  useEffect(() => {
+    if (cart.some((i) => i.duplex && !canDuplex(i.color))) {
+      setCart((c) => c.map((i) => (i.duplex && !canDuplex(i.color) ? { ...i, duplex: false } : i)));
+    }
+  }, [cart, canDuplex]);
+
   const canOrder = online === true && !!status?.open;
   // Shop details are built into the site (shop-info.json) so contact/policy pages work even
   // when the shop PC is off; live values from the server win when available.
@@ -118,7 +126,7 @@ export function StoreProvider({ children }) {
     hours: status?.hours || config?.status?.hours || shopInfo.hours,
   }), [config, status]);
   const value = {
-    config, status, online, canOrder, shop, cart, addToCart, updateItem, removeItem, clearCart, priceOf, total,
+    config, status, online, canOrder, shop, cart, addToCart, updateItem, removeItem, clearCart, priceOf, total, canDuplex,
     orders, rememberOrder, updateOrder, forgetOrder,
   };
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

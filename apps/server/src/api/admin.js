@@ -223,7 +223,7 @@ r.post('/printers', (req, res) => {
   if (!label || !windowsName) throw new UserError('Label and Windows printer name are required');
   const id = `${label.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30)}-${newId().slice(0, 4)}`;
   q(`INSERT INTO printers(id, label, windows_name, color, duplex, enabled, sort) VALUES(?, ?, ?, ?, ?, 1, 99)`)
-    .run(id, label, windowsName, b.color ? 1 : 0, ['auto', 'manual', 'none'].includes(b.duplex) ? b.duplex : 'manual');
+    .run(id, label, windowsName, b.color ? 1 : 0, ['auto', 'manual', 'none'].includes(b.duplex) ? b.duplex : 'none');
   res.status(201).json(printerView(q('SELECT * FROM printers WHERE id = ?').get(id)));
 });
 

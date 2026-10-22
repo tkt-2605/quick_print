@@ -8,7 +8,7 @@ import { useStore } from '../lib/store.jsx';
 
 /** Full-screen preview of how a cart item will come out of the printer, sheet by sheet. */
 export default function PreviewModal({ item, onClose }) {
-  const { updateItem } = useStore();
+  const { updateItem, canDuplex } = useStore();
   const url = fileUrl(item.fileId, item.version);
   const { pages } = trySelection(item);
   const selected = pages || [];
@@ -57,8 +57,10 @@ export default function PreviewModal({ item, onClose }) {
         <div className="modal-toolbar">
           <Segmented value={item.color ? 'color' : 'bw'} onChange={(v) => updateItem(item.key, { color: v === 'color' })}
             options={[['bw', 'Black & white'], ['color', 'Colour']]} />
-          <Segmented value={item.duplex ? 'double' : 'single'} onChange={(v) => updateItem(item.key, { duplex: v === 'double' })}
-            options={[['single', 'Single side'], ['double', 'Both sides']]} />
+          {canDuplex(item.color) ? (
+            <Segmented value={item.duplex ? 'double' : 'single'} onChange={(v) => updateItem(item.key, { duplex: v === 'double' })}
+              options={[['single', 'Single side'], ['double', 'Both sides']]} />
+          ) : null}
         </div>
 
         {zoom === null ? (
