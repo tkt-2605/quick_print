@@ -119,7 +119,10 @@ function CartItem({ item, onPreview }) {
 
 export default function Cart() {
   const { config, shop, cart, total, clearCart, rememberOrder, canOrder, online } = useStore();
-  const counter = config?.paymentMode === 'counter';
+  // Online payments on + counter allowed → the customer chooses.
+  const canChoose = !!config && config.paymentMode !== 'counter' && config.payAtCounter;
+  const [payMethod, setPayMethod] = useState('online');
+  const counter = config?.paymentMode === 'counter' || (canChoose && payMethod === 'counter');
   const navigate = useNavigate();
   const [preview, setPreview] = useState(null);
   const [name, setName] = useState(() => localStorage.getItem('qp.name') || '');
@@ -143,6 +146,7 @@ export default function Cart() {
       localStorage.setItem('qp.phone', phone);
       const order = await api.createOrder({
         customer: { name, phone },
+        payMethod: counter ? 'counter' : 'online',
         items: cart.map((i) => ({ fileId: i.fileId, copies: i.copies, color: i.color, duplex: i.duplex, range: i.range })),
       });
       rememberOrder({
@@ -152,6 +156,7 @@ export default function Cart() {
         createdAt: Date.now(),
         amount: order.amount,
         stage: 'pending_payment',
+        payAtCounter: order.payment.mode === 'counter',
         files: cart.map((i) => i.name),
       });
 
@@ -237,6 +242,19 @@ export default function Cart() {
             <input className="input" required inputMode="numeric" pattern="[0-9+ ]{10,14}" value={phone}
               onChange={(e) => setPhone(e.target.value)} autoComplete="tel" placeholder="10-digit mobile" />
           </label>
+          {canChoose ? (
+            <fieldset className="pay-choice">
+              <legend>Payment</legend>
+              <label className={payMethod === 'online' ? 'on' : ''}>
+                <input type="radio" name="pay" value="online" checked={payMethod === 'online'} onChange={() => setPayMethod('online')} />
+                <span><b>Pay online now</b><small>UPI, cards, net banking — printing starts right away</small></span>
+              </label>
+              <label className={payMethod === 'counter' ? 'on' : ''}>
+                <input type="radio" name="pay" value="counter" checked={payMethod === 'counter'} onChange={() => setPayMethod('counter')} />
+                <span><b>Pay at the counter</b><small>Cash or UPI at the shop — we print once you've paid</small></span>
+              </label>
+            </fieldset>
+          ) : null}
           {error ? <p className="error-text">{error}</p> : null}
           <button className="btn btn-primary btn-block btn-lg" disabled={paying || invalid || !config || !canOrder}>
             {paying ? 'Processing…' : counter ? `Place order · pay ${rupees(total)} at counter` : `Pay ${rupees(total)}`}
@@ -244,7 +262,7 @@ export default function Cart() {
           <p className="muted small center">
             By ordering you agree to our <Link to="/terms">Terms</Link> and <Link to="/refund-policy">Refund policy</Link>. Collect at the shop — no delivery.
           </p>
-          {counter ? <p className="muted small center">You'll get an order code. Pay by cash or UPI at the counter and we'll print it straight away.</p> : null}
+          {counter ? <p className="muted small center">You'll get an order code. Pay by cash or UPI at the counter and we'll print it then.</p> : null}
           {config?.paymentMode === 'mock' ? <p className="muted small center">Test mode: no real payment is taken.</p> : null}
         </form>
       </aside>

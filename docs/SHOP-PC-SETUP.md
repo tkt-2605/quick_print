@@ -28,8 +28,9 @@ Only one PC may run the tunnel/server at a time. On the **dev PC**:
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\windows\install-autostart.ps1 -Remove
 Get-CimInstance Win32_Process -Filter "Name='node.exe'" | Where-Object { $_.CommandLine -match 'quickprint|apps\\(server|agent)' } | Stop-Process -Force
-Get-Process cloudflared -ErrorAction SilentlyContinue | Stop-Process -Force
 Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object { $_.CommandLine -match 'run\.ps1' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+# QuickPrint's tunnel is the plain "cloudflared tunnel run"; other tunnels (e.g. iot-gw) keep running
+Get-CimInstance Win32_Process -Filter "Name='cloudflared.exe'" | Where-Object { $_.CommandLine -match 'tunnel run"?\s*$' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
 ```
 
 ## 2. Install on the shop PC
@@ -105,6 +106,26 @@ During shop hours, on a phone using **mobile data**:
 4. Admin → Print queue → **Mark collected** (or type/scan the code at the top).
 
 No real money moves in test mode.
+
+## Updating to a newer version
+
+When new code is pushed to GitHub (the website updates by itself; the server here does not):
+```powershell
+cd $env:USERPROFILE\Downloads\quickprint
+git pull
+npm install
+npm run build
+Get-CimInstance Win32_Process -Filter "Name='node.exe'" | Where-Object { $_.CommandLine -match 'apps\\(server|agent)' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+```
+The autostart loop restarts the server and agent within a few seconds with the new code.
+Don't update while something is printing.
+
+## Payment options
+
+With Razorpay keys set, customers choose **Pay online now** or **Pay at the counter** at checkout.
+Counter orders appear in Admin → Print queue under *Waiting for payment at counter* and **do not print**
+until staff press **Paid cash** or **Paid UPI**. Turn the counter option off in
+Admin → Pricing & settings → Payment. Unpaid counter orders are cancelled automatically after 24 hours.
 
 ## Troubleshooting
 

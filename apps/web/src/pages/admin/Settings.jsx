@@ -24,8 +24,8 @@ export default function Settings({ api }) {
       e.preventDefault();
       try {
         // Only the fields edited here — open/closed and pause are controlled from the queue.
-        const { price_bw, price_color, route_bw_to_mono, retention_hours, hours, order_cutoff_minutes } = s;
-        setS(await api.saveSettings({ price_bw, price_color, route_bw_to_mono, retention_hours, hours, order_cutoff_minutes }));
+        const { price_bw, price_color, counter_payment, route_bw_to_mono, retention_hours, hours, order_cutoff_minutes } = s;
+        setS(await api.saveSettings({ price_bw, price_color, counter_payment, route_bw_to_mono, retention_hours, hours, order_cutoff_minutes }));
         setMsg('Saved');
       } catch (err) {
         setMsg(err.message);
@@ -34,6 +34,12 @@ export default function Settings({ api }) {
       <h2>Pricing (per printed side)</h2>
       {rupeeField('price_bw', 'Black & white')}
       {rupeeField('price_color', 'Colour')}
+
+      <h2>Payment</h2>
+      <label className="check">
+        <input type="checkbox" checked={s.counter_payment} onChange={(e) => setS({ ...s, counter_payment: e.target.checked })} />
+        Let customers choose "Pay at the counter" — their order prints only after you press Paid on the Print queue
+      </label>
 
       <h2>Routing</h2>
       <label className="check">

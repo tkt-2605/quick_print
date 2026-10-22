@@ -51,6 +51,7 @@ r.get('/config', (req, res) => {
     formats: acceptedFormats(),
     maxUploadMb: config.maxUploadMb,
     paymentMode: config.paymentMode,
+    payAtCounter: config.paymentMode === 'counter' || s.counter_payment,
     razorpayKeyId: config.paymentMode === 'razorpay' ? config.razorpay.keyId : null,
     status: shopStatus(),
   });
@@ -100,7 +101,7 @@ r.get('/trending', (req, res) => {
 // ---- orders ----
 
 r.post('/orders', requireOpen, async (req, res) => {
-  const { customer = {}, items = [] } = req.body || {};
+  const { customer = {}, items = [], payMethod } = req.body || {};
   const name = String(customer.name || '').trim().slice(0, 80);
   const phone = String(customer.phone || '').replace(/\D/g, '').slice(-10);
   if (!name) throw new UserError('Please enter your name');
@@ -124,6 +125,7 @@ r.post('/orders', requireOpen, async (req, res) => {
     return { file, pages, copies, color, duplex, price };
   });
 
+  const payAtCounter = config.paymentMode === 'counter' || (payMethod === 'counter' && s.counter_payment);
   const sensitive = lines.some((l) => l.file.sensitive) ? 1 : 0;
   const order = {
     id: newId(),
@@ -134,21 +136,22 @@ r.post('/orders', requireOpen, async (req, res) => {
 
   tx(() => {
     const now = Date.now();
-    q(`INSERT INTO orders(id, code, token, customer_name, phone, amount, status, sensitive, pin, created_at)
-       VALUES(?, ?, ?, ?, ?, ?, 'pending_payment', ?, ?, ?)`)
-      .run(order.id, order.code, order.token, name, phone, order.amount, sensitive, sensitive ? newPin() : null, now);
+    q(`INSERT INTO orders(id, code, token, customer_name, phone, amount, status, pay_method, sensitive, pin, created_at)
+       VALUES(?, ?, ?, ?, ?, ?, 'pending_payment', ?, ?, ?, ?)`)
+      .run(order.id, order.code, order.token, name, phone, order.amount, payAtCounter ? 'counter' : 'online',
+        sensitive, sensitive ? newPin() : null, now);
     const ins = q(`INSERT INTO items(order_id, file_id, file_name, pages_json, copies, color, duplex, price, status, updated_at)
                    VALUES(?, ?, ?, ?, ?, ?, ?, ?, 'pending_payment', ?)`);
     for (const l of lines) ins.run(order.id, l.file.id, l.file.name, JSON.stringify(l.pages), l.copies, l.color, l.duplex, l.price, now);
   });
 
-  const gatewayOrderId = await createGatewayOrder(order);
+  const gatewayOrderId = payAtCounter ? null : await createGatewayOrder(order);
   res.status(201).json({
     id: order.id,
     token: order.token,
     code: order.code,
     amount: order.amount,
-    payment: { mode: config.paymentMode, gatewayOrderId, keyId: config.razorpay.keyId || null },
+    payment: { mode: payAtCounter ? 'counter' : config.paymentMode, gatewayOrderId, keyId: config.razorpay.keyId || null },
   });
 });
 

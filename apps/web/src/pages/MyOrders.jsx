@@ -41,7 +41,7 @@ function OrderRow({ o, onRemove }) {
     <>
       <div className="history-top">
         <b className="history-code">{o.code}</b>
-        <span className={`badge badge-${stageTone(o.stage)}`}>{stageLabel(o.stage || 'queued', config?.paymentMode === 'counter')}</span>
+        <span className={`badge badge-${stageTone(o.stage)}`}>{stageLabel(o.stage || 'queued', o.payAtCounter ?? config?.paymentMode === 'counter')}</span>
       </div>
       {files.length ? (
         <div className="history-files">

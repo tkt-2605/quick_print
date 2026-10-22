@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { config } from '../config.js';
 import { q, tx, getSettings, updateSettings, listPrinters } from '../db.js';
 import { createDuplexTestFile, destroyFile, getFile, ingestFile, readPdf } from '../files.js';
-import { itemsOf, markPaid, orderStage } from '../orders.js';
+import { itemsOf, markPaid, orderStage, paysAtCounter } from '../orders.js';
 import { nextOpening, shopStatus } from '../shop.js';
 import { printerOnline } from '../routing.js';
 import { UserError, hmac, newId, safeEqual } from '../util.js';
@@ -52,6 +52,7 @@ function adminOrderView(o) {
     amount: o.amount,
     status: o.status,
     stage: orderStage(o, items),
+    payAtCounter: paysAtCounter(o),
     sensitive: !!o.sensitive,
     createdAt: o.created_at,
     paidAt: o.paid_at,
@@ -79,7 +80,9 @@ function adminOrderView(o) {
 r.get('/queue', (req, res) => {
   const since = Date.now() - 12 * 3600_000;
   // Unpaid orders only matter when customers pay at the counter; online checkouts that were abandoned are noise.
-  const unpaid = config.paymentMode === 'razorpay' ? '' : "OR status = 'pending_payment'";
+  const unpaid = config.paymentMode === 'razorpay'
+    ? "OR (status = 'pending_payment' AND pay_method = 'counter')"
+    : "OR status = 'pending_payment'";
   const orders = q(`SELECT * FROM orders WHERE status = 'active' ${unpaid}
                        OR (status IN ('collected', 'cancelled') AND closed_at > ?)
                      ORDER BY CASE status WHEN 'pending_payment' THEN 0 WHEN 'active' THEN 1 ELSE 2 END,

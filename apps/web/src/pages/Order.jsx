@@ -34,8 +34,7 @@ export default function Order() {
   const [order, setOrder] = useState(null);
   const [error, setError] = useState('');
   const [unreachable, setUnreachable] = useState(false);
-  const { config, status, orders, updateOrder } = useStore();
-  const counter = config?.paymentMode === 'counter';
+  const { status, orders, updateOrder } = useStore();
 
   useEffect(() => {
     let timer;
@@ -81,6 +80,7 @@ export default function Order() {
   }
 
   // With pay at counter, paying is the first visible step.
+  const counter = order.payAtCounter;
   const unpaid = order.stage === 'pending_payment';
   const steps = counter ? [['pay', unpaid ? 'Pay at counter' : 'Paid at counter'], ...STEPS.map(([k, l]) => [k, k === 'queued' ? 'In print queue' : l])] : STEPS;
   const step = (STEP_INDEX[order.stage] ?? -1) + (counter ? 1 : 0);
@@ -102,7 +102,7 @@ export default function Order() {
       {unpaid && counter ? (
         <div className="card pay-counter">
           <div className="pay-amount"><Icon name="banknote" size={24} /> Pay {rupees(order.amount)} at the counter</div>
-          <p>Show your code to the shopkeeper and pay by cash or UPI. Printing starts right away.</p>
+          <p>Show your code to the shopkeeper and pay by cash or UPI. Printing starts as soon as you've paid.</p>
         </div>
       ) : null}
       {unpaid && !counter ? <p className="notice">Payment not completed yet. If money was deducted, it will update in a minute.</p> : null}

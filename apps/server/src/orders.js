@@ -1,3 +1,4 @@
+import { config } from './config.js';
 import { q, tx } from './db.js';
 
 export const ACTIVE_ITEM_STATES = ['printing', 'awaiting_flip', 'flip_ok'];
@@ -14,6 +15,9 @@ export function orderStage(order, items) {
   if (st.some((s) => ACTIVE_ITEM_STATES.includes(s) || s === 'done')) return 'printing';
   return 'queued';
 }
+
+/** Order waits for staff to take cash/UPI at the counter (instead of an online payment). */
+export const paysAtCounter = (order) => (order.pay_method ? order.pay_method === 'counter' : config.paymentMode === 'counter');
 
 export function sheetsFor(pageCount, copies, duplex) {
   return (duplex ? Math.ceil(pageCount / 2) : pageCount) * copies;
@@ -44,6 +48,7 @@ export function publicOrderView(order) {
     customerName: order.customer_name,
     amount: order.amount,
     stage: orderStage(order, items),
+    payAtCounter: paysAtCounter(order),
     sensitive: !!order.sensitive,
     pin: paid && order.sensitive && order.status === 'active' ? order.pin : null,
     createdAt: order.created_at,

@@ -1,6 +1,6 @@
 import { config } from './config.js';
 import { q } from './db.js';
-import { markPaid } from './orders.js';
+import { markPaid, paysAtCounter } from './orders.js';
 import { hmac, safeEqual, UserError } from './util.js';
 
 const rzpAuth = () => `Basic ${Buffer.from(`${config.razorpay.keyId}:${config.razorpay.keySecret}`).toString('base64')}`;
@@ -24,7 +24,7 @@ export async function createGatewayOrder(order) {
 
 /** Verify the signature the Razorpay checkout hands back to the browser. */
 export function confirmCheckout(order, body) {
-  if (config.paymentMode === 'counter') throw new UserError('Please pay at the counter — staff will start your prints.', 400);
+  if (paysAtCounter(order)) throw new UserError('Please pay at the counter — staff will start your prints.', 400);
   if (config.paymentMode === 'mock') {
     if (!body.mock) throw new UserError('Payment details missing');
     return markPaid(order.id, 'mock');

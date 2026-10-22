@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS orders (
   sensitive        INTEGER NOT NULL DEFAULT 0,
   pin              TEXT,
   gateway_order_id TEXT,
+  pay_method       TEXT,                 -- online | counter (null on orders from before the choice existed)
   payment_ref      TEXT,
   created_at       INTEGER NOT NULL,
   paid_at          INTEGER,
@@ -100,6 +101,11 @@ export function q(sql) {
   return s;
 }
 
+// Columns added after launch (CREATE TABLE IF NOT EXISTS won't add them to an existing database).
+if (!q("SELECT 1 FROM pragma_table_info('orders') WHERE name = 'pay_method'").get()) {
+  db.exec('ALTER TABLE orders ADD COLUMN pay_method TEXT');
+}
+
 export function tx(fn) {
   db.exec('BEGIN IMMEDIATE');
   try {
@@ -119,6 +125,7 @@ const DAY_HOURS = { open: '09:00', close: '21:00' };
 export const DEFAULT_SETTINGS = {
   price_bw: 200, // paise per printed side
   price_color: 1000,
+  counter_payment: true, // with online payments on, also offer "Pay at counter" (prints only after staff marks it paid)
   route_bw_to_mono: true, // send B&W jobs to a mono (laser) printer when one is online
   retention_hours: 24, // delete customer files this long after the order is closed
   // Weekly opening hours in shop-local time; null = closed that day.

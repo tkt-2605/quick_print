@@ -13,6 +13,7 @@ export default function Home() {
   const [trending, setTrending] = useState([]);
   // Until the shop has been reached once, assume pay at counter (no gateway yet).
   const counter = (config?.paymentMode || 'counter') === 'counter';
+  const either = !counter && config?.payAtCounter;
 
   useEffect(() => {
     api.trending().then(setTrending, () => {});
@@ -21,7 +22,9 @@ export default function Home() {
   const steps = [
     ['Upload', 'PDF or photos from your phone'],
     ['Check the preview', 'Every A4 sheet, exactly as it will print'],
-    counter ? ['Pay at the counter', 'Cash or UPI — we print right away'] : ['Pay online', 'UPI, cards or wallets'],
+    counter ? ['Pay at the counter', 'Cash or UPI — then we print']
+      : either ? ['Pay online or at the counter', 'UPI and cards online, or cash at the shop']
+      : ['Pay online', 'UPI, cards or wallets'],
     ['Collect', 'Show your order code'],
   ];
 
