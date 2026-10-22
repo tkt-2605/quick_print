@@ -5,9 +5,8 @@ import { useStore } from '../lib/store.jsx';
 
 /** Shown instead of upload/checkout when the shop is closed or the shop PC can't be reached. */
 export function ShopClosed() {
-  const { config, status, online } = useStore();
-  const hours = status?.hours || config?.status?.hours;
-  const shop = config?.shop || {};
+  const { status, online, shop } = useStore();
+  const hours = shop.hours;
 
   let icon = 'moon';
   let title = "We're closed now";

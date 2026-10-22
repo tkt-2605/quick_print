@@ -42,6 +42,8 @@ function paymentMode() {
   return 'counter';
 }
 
+const shopInfo = JSON.parse(fs.readFileSync(path.join(ROOT, 'apps/web/src/shop-info.json'), 'utf8'));
+
 const razorpay = {
   keyId: env.RAZORPAY_KEY_ID || '',
   keySecret: env.RAZORPAY_KEY_SECRET || '',
@@ -55,7 +57,7 @@ export const config = {
   tmpDir,
   webDist: path.join(ROOT, 'apps/web/dist'),
   port: Number(env.PORT || 4000),
-  shopName: env.SHOP_NAME || 'QuickPrint',
+  shopName: env.SHOP_NAME || shopInfo.name || 'QuickPrint',
   adminPassword: env.ADMIN_PASSWORD || 'admin',
   agentToken: env.AGENT_TOKEN || 'dev-agent-token',
   fileKey: Buffer.from(persistentSecret('FILE_KEY'), 'hex'),
@@ -69,12 +71,13 @@ export const config = {
   maxUploadMb: 50,
   maxPages: 500,
   // Public business details for the policy/contact pages (required by payment gateways).
+  // Edit apps/web/src/shop-info.json — it is also built into the website so those pages work
+  // when this PC is off. SHOP_* in .env override it.
   shop: {
-    legalName: env.SHOP_LEGAL_NAME || '',
-    address: env.SHOP_ADDRESS || '',
-    phone: env.SHOP_PHONE || '',
-    email: env.SHOP_EMAIL || '',
-    hours: env.SHOP_HOURS || '',
+    legalName: env.SHOP_LEGAL_NAME || shopInfo.legalName || '',
+    address: env.SHOP_ADDRESS || shopInfo.address || '',
+    phone: env.SHOP_PHONE || shopInfo.phone || '',
+    email: env.SHOP_EMAIL || shopInfo.email || '',
     pickupHoldDays: Number(env.PICKUP_HOLD_DAYS || 7),
   },
 };
@@ -82,7 +85,7 @@ export const config = {
 if (!env.ADMIN_PASSWORD) console.warn('[config] ADMIN_PASSWORD not set — using "admin". Set it in .env before going live.');
 if (!env.AGENT_TOKEN) console.warn('[config] AGENT_TOKEN not set — using a dev token. Set it in .env before going live.');
 if (!config.shop.legalName || !config.shop.address || !config.shop.phone || !config.shop.email) {
-  console.warn('[config] SHOP_LEGAL_NAME / SHOP_ADDRESS / SHOP_PHONE / SHOP_EMAIL missing — policy pages will show placeholders.');
+  console.warn('[config] Shop legal name / address / phone / email missing — fill in apps/web/src/shop-info.json.');
 }
 if (config.paymentMode === 'mock') console.warn('[config] PAYMENT_MODE=mock — fake payments for testing only.');
 if (config.paymentMode === 'counter') console.warn('[config] No payment gateway — customers pay at the counter.');

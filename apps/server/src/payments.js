@@ -3,16 +3,14 @@ import { q } from './db.js';
 import { markPaid } from './orders.js';
 import { hmac, safeEqual, UserError } from './util.js';
 
+const rzpAuth = () => `Basic ${Buffer.from(`${config.razorpay.keyId}:${config.razorpay.keySecret}`).toString('base64')}`;
+
 /** Create the Razorpay order the checkout popup pays against. */
 export async function createGatewayOrder(order) {
   if (config.paymentMode !== 'razorpay') return null;
-  const { keyId, keySecret } = config.razorpay;
   const res = await fetch('https://api.razorpay.com/v1/orders', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString('base64')}`,
-    },
+    headers: { 'Content-Type': 'application/json', Authorization: rzpAuth() },
     body: JSON.stringify({ amount: order.amount, currency: 'INR', receipt: order.id, notes: { code: order.code } }),
   });
   if (!res.ok) {
@@ -37,6 +35,34 @@ export function confirmCheckout(order, body) {
     throw new UserError('Payment could not be verified', 400);
   }
   return markPaid(order.id, paymentId);
+}
+
+/**
+ * Ask Razorpay about orders still marked unpaid here. Catches payments whose browser
+ * callback and webhook never reached this PC (it was off, or the internet dropped).
+ * Razorpay is the record of truth for money; this just brings our queue in line.
+ */
+export async function reconcilePayments() {
+  if (config.paymentMode !== 'razorpay') return;
+  const pending = q(`SELECT * FROM orders WHERE status = 'pending_payment' AND gateway_order_id IS NOT NULL
+                     AND created_at > ?`).all(Date.now() - 7 * 24 * 3600_000);
+  for (const order of pending) {
+    try {
+      const res = await fetch(`https://api.razorpay.com/v1/orders/${order.gateway_order_id}/payments`, {
+        headers: { Authorization: rzpAuth() },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const { items = [] } = await res.json();
+      const captured = items.find((p) => p.status === 'captured' && p.amount === order.amount);
+      if (captured) {
+        markPaid(order.id, captured.id);
+        console.log(`[razorpay] reconciled order ${order.code}: payment ${captured.id} was captured`);
+      }
+    } catch (e) {
+      console.error(`[razorpay] could not check order ${order.code}:`, e.message);
+      return; // probably offline; try again next round
+    }
+  }
 }
 
 /**

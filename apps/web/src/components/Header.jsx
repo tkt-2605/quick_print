@@ -5,9 +5,8 @@ import { useStore } from '../lib/store.jsx';
 import { rupees } from '../lib/format.js';
 
 export default function Header() {
-  const { config, status, cart, total } = useStore();
-  const shop = config?.shop || {};
-  const today = todayHours(status?.hours || config?.status?.hours);
+  const { shop, cart, total } = useStore();
+  const today = todayHours(shop.hours);
 
   return (
     <header className="site-header">
@@ -23,7 +22,7 @@ export default function Header() {
       <div className="topbar">
         <div className="wrap topbar-inner">
           <Link to="/" className="brand" aria-label="Home">
-            <span className="brand-name">{config?.shopName || 'QuickPrint'}</span>
+            <span className="brand-name">{shop.name}</span>
             <span className="brand-sub">Print &amp; Stationery</span>
           </Link>
           <nav className="topnav">

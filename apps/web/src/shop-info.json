@@ -1,0 +1,16 @@
+{
+  "name": "QuickPrint",
+  "legalName": "",
+  "address": "",
+  "phone": "",
+  "email": "",
+  "hours": {
+    "mon": { "open": "09:00", "close": "20:30" },
+    "tue": { "open": "09:00", "close": "20:30" },
+    "wed": { "open": "09:00", "close": "20:30" },
+    "thu": { "open": "09:00", "close": "20:30" },
+    "fri": { "open": "09:00", "close": "20:30" },
+    "sat": { "open": "09:00", "close": "20:30" },
+    "sun": null
+  }
+}

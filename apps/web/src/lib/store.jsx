@@ -1,8 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { api } from './api.js';
 import { trySelection } from './range.js';
+import shopInfo from '../shop-info.json';
 
 const StoreContext = createContext(null);
+
+const filled = (obj) => Object.fromEntries(Object.entries(obj || {}).filter(([, v]) => v !== '' && v != null));
 
 function readJson(key, fallback) {
   try {
@@ -107,8 +110,16 @@ export function StoreProvider({ children }) {
   const total = useMemo(() => cart.reduce((a, i) => a + priceOf(i), 0), [cart, priceOf]);
 
   const canOrder = online === true && !!status?.open;
+  // Shop details are built into the site (shop-info.json) so contact/policy pages work even
+  // when the shop PC is off; live values from the server win when available.
+  const shop = useMemo(() => ({
+    ...shopInfo,
+    ...filled(config?.shop),
+    name: config?.shopName || shopInfo.name,
+    hours: status?.hours || config?.status?.hours || shopInfo.hours,
+  }), [config, status]);
   const value = {
-    config, status, online, canOrder, cart, addToCart, updateItem, removeItem, clearCart, priceOf, total,
+    config, status, online, canOrder, shop, cart, addToCart, updateItem, removeItem, clearCart, priceOf, total,
     orders, rememberOrder, updateOrder, forgetOrder,
   };
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

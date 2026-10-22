@@ -16,7 +16,10 @@ export function runCleanup() {
   const now = Date.now();
   const { retention_hours: retention } = getSettings();
 
-  const stale = q("SELECT id FROM orders WHERE status = 'pending_payment' AND created_at < ?").all(now - 24 * HOUR);
+  // Unpaid orders expire after 24 h. Online-payment orders get 7 days, so a payment made just
+  // before the PC went off is found by reconcilePayments() before the order is cancelled.
+  const stale = q(`SELECT id FROM orders WHERE status = 'pending_payment'
+                   AND created_at < CASE WHEN gateway_order_id IS NULL THEN ? ELSE ? END`).all(now - 24 * HOUR, now - 7 * 24 * HOUR);
   for (const o of stale) {
     q("UPDATE orders SET status = 'cancelled', closed_at = ? WHERE id = ?").run(now, o.id);
     q("UPDATE items SET status = 'cancelled', updated_at = ? WHERE order_id = ?").run(now, o.id);

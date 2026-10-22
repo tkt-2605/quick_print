@@ -9,14 +9,14 @@ import { useStore } from '../lib/store.jsx';
  * We share only the code, never the order link (which would reveal the private-print PIN).
  */
 export default function PickupPass({ code, sensitive }) {
-  const { config } = useStore();
+  const { shop } = useStore();
   const [qr, setQr] = useState('');
 
   useEffect(() => {
     QRCode.toDataURL(code, { width: 220, margin: 1, color: { dark: '#0f1b3d', light: '#ffffff' } }).then(setQr, () => setQr(''));
   }, [code]);
 
-  const shopName = config?.shopName || 'QuickPrint';
+  const shopName = shop.name;
   const text = `Please collect my prints from ${shopName}. Pickup code: ${code}`
     + (sensitive ? ' (you will also need the 4-digit PIN — ask me for it)' : '');
 

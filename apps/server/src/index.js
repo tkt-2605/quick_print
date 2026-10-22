@@ -6,7 +6,7 @@ import adminApi from './api/admin.js';
 import agentApi from './api/agent.js';
 import publicApi from './api/public.js';
 import { startCleanup } from './cleanup.js';
-import { razorpayWebhook } from './payments.js';
+import { razorpayWebhook, reconcilePayments } from './payments.js';
 
 const app = express();
 app.disable('x-powered-by');
@@ -56,6 +56,9 @@ app.use((err, req, res, next) => {
 });
 
 startCleanup();
+// Pick up payments Razorpay received while this PC was off, then keep checking.
+reconcilePayments();
+setInterval(reconcilePayments, 5 * 60_000).unref();
 app.listen(config.port, () => {
   console.log(`[quickprint] server on http://localhost:${config.port} (payments: ${config.paymentMode}, office files: ${config.sofficePath ? 'yes' : 'no'})`);
 });

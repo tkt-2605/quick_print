@@ -119,7 +119,7 @@ function CartItem({ item, onPreview }) {
 }
 
 export default function Cart() {
-  const { config, cart, total, clearCart, rememberOrder, canOrder, online } = useStore();
+  const { config, shop, cart, total, clearCart, rememberOrder, canOrder, online } = useStore();
   const counter = config?.paymentMode === 'counter';
   const navigate = useNavigate();
   const [preview, setPreview] = useState(null);
@@ -177,7 +177,7 @@ export default function Cart() {
           order_id: order.payment.gatewayOrderId,
           amount: order.amount,
           currency: 'INR',
-          name: config.shopName,
+          name: shop.name,
           description: `Print order ${order.code}`,
           prefill: { name, contact: phone },
           theme: { color: '#1a4fd6' },

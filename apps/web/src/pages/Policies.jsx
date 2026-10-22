@@ -10,17 +10,16 @@ import { useStore } from '../lib/store.jsx';
 const UPDATED = '22 October 2026';
 
 function useShop() {
-  const { config, status } = useStore();
-  const s = config?.shop || {};
-  const weekly = hoursTable(status?.hours || config?.status?.hours).map(([days, text]) => `${days} ${text}`).join(', ');
-  const missing = (label) => <mark>[{label} — set in .env]</mark>;
+  const { config, shop: s } = useStore();
+  const weekly = hoursTable(s.hours).map(([days, text]) => `${days} ${text}`).join(', ');
+  const missing = (label) => <mark>[{label} — fill in shop-info.json]</mark>;
   return {
-    name: config?.shopName || 'QuickPrint',
+    name: s.name,
     legal: s.legalName || missing('legal name'),
     address: s.address || missing('shop address'),
     phone: s.phone || missing('phone'),
     email: s.email || missing('email'),
-    hours: weekly || s.hours || missing('shop hours'),
+    hours: weekly || missing('shop hours'),
     holdDays: s.pickupHoldDays || 7,
     retention: config?.retentionHours || 24,
     prices: config?.prices,
