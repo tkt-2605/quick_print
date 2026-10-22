@@ -66,7 +66,7 @@ const PAGES = {
           <li>We may refuse or cancel an order that breaks these rules; in that case we refund the full amount.</li>
         </ul>
         <h2>Collection</h2>
-        <p>Anyone who shows the order code or QR can collect a normal order. Private-document orders also need the PIN. Keep both safe. See our <Link to="/pickup-policy">pickup policy</Link>.</p>
+        <p>Anyone who shows the order code or QR can collect a normal order. Keep it safe. See our <Link to="/pickup-policy">pickup policy</Link>.</p>
         <h2>Contact</h2>
         <p>Questions: {s.phone} · {s.email}. These terms are governed by the laws of India. Last updated {UPDATED}.</p>
       </>
@@ -103,7 +103,6 @@ const PAGES = {
         <ul>
           <li>Most orders are ready within minutes of payment during shop hours. The order page shows live status.</li>
           <li>Show your order code or QR at the counter. Someone else can collect for you if you share the code with them.</li>
-          <li>Private-document orders are printed only when the PIN is given at the counter.</li>
           <li>Uncollected prints are kept for <b>{s.holdDays} days</b>, then securely shredded. No refund is given for prints that are not collected.</li>
         </ul>
         <p>Last updated {UPDATED}.</p>
@@ -126,7 +125,6 @@ const PAGES = {
         <h2>How long we keep your files</h2>
         <ul>
           <li>Normal files are deleted automatically <b>{s.retention} hours</b> after the order is completed or cancelled.</li>
-          <li><b>Private documents</b> (e.g. Aadhaar, PAN, bank statements, when you turn on "Private documents") are stored encrypted, cannot be opened by shop staff, and are deleted immediately after printing — or within 1 hour if they are never printed.</li>
           <li>Unpaid orders are cancelled after 24 hours and their files deleted.</li>
           <li>We keep basic order records (code, amount, date, name, phone) for our accounts.</li>
         </ul>

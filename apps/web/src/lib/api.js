@@ -44,9 +44,8 @@ export const api = {
   config: () => request('/api/config'),
   status: () => request('/api/status'),
   trending: () => request('/api/trending'),
-  uploadFile(file, { sensitive, fit }, onProgress) {
+  uploadFile(file, { fit }, onProgress) {
     const form = new FormData();
-    form.append('sensitive', sensitive ? '1' : '0');
     form.append('fit', fit);
     form.append('file', file);
     return uploadForm('/api/files', form, { onProgress });
@@ -62,7 +61,6 @@ export function adminApi(token) {
   return {
     queue: () => call('/queue'),
     orderByCode: (code) => call(`/orders/by-code/${encodeURIComponent(code)}`),
-    release: (orderId, pin) => call(`/orders/${orderId}/release`, { method: 'POST', body: { pin } }),
     markPaid: (orderId, method) => call(`/orders/${orderId}/mark-paid`, { method: 'POST', body: { method } }),
     closeShop: (message, reopen) => call('/shop/close', { method: 'POST', body: { message, reopen } }),
     openShop: () => call('/shop/open', { method: 'POST', body: {} }),

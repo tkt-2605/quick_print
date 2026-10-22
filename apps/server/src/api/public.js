@@ -70,10 +70,7 @@ function requireOpen(req, res, next) {
 
 r.post('/files', requireOpen, upload.single('file'), async (req, res) => {
   if (!req.file) throw new UserError('No file received');
-  const file = await ingestFile(req.file.buffer, uploadName(req.file), {
-    sensitive: req.body.sensitive === '1',
-    fit: req.body.fit === 'fill' ? 'fill' : 'fit',
-  });
+  const file = await ingestFile(req.file.buffer, uploadName(req.file), { fit: req.body.fit === 'fill' ? 'fill' : 'fit' });
   res.status(201).json(fileView(file));
 });
 

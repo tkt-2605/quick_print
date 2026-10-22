@@ -8,7 +8,6 @@ const STAGE_LABEL = {
   pending_payment: 'Waiting for payment',
   queued: 'Queued',
   printing: 'Printing',
-  awaiting_release: 'Waiting for customer PIN',
   attention: 'Needs attention',
   ready: 'Ready — call customer',
   collected: 'Collected',
@@ -16,7 +15,6 @@ const STAGE_LABEL = {
 };
 const ITEM_LABEL = {
   pending_payment: 'Unpaid',
-  held: 'Held (private)',
   queued: 'Queued',
   printing: 'Printing',
   awaiting_flip: 'FLIP NEEDED',
@@ -140,7 +138,6 @@ function Handover({ api, printers, act }) {
     : o.status === 'cancelled' ? ['bad', 'alert', 'This order was cancelled']
     : o.status === 'pending_payment' ? ['warn', 'banknote', `Not paid yet — collect ${rupees(o.amount)} (cash or UPI), then press Paid`]
     : o.stage === 'ready' ? ['ok', 'checkCircle', `Ready — hand over to the customer (${o.customerName})`]
-    : o.stage === 'awaiting_release' ? ['warn', 'lock', 'Private order — ask for the 4-digit PIN, then release to print']
     : ['warn', 'clock', 'Not finished printing yet'];
 
   return (
@@ -227,29 +224,17 @@ function ShopPanel({ shop, api, act }) {
 }
 
 function OrderCard({ o, printers, act, api }) {
-  const [pin, setPin] = useState('');
   return (
     <article className={`card queue-card stage-${o.stage}`}>
       <header>
         <div>
           <span className="order-code sm">{o.code}</span>
-          {o.sensitive ? <span className="chip warn"><Icon name="lock" size={12} /> Private</span> : null}
         </div>
         <span className={`stage stage-${o.stage}`}>{STAGE_LABEL[o.stage] || o.stage}</span>
       </header>
       <div className="muted small">
         {o.paidBy ? <span className="chip">paid {o.paidBy}</span> : null} {o.customerName}{o.phone ? <> · <a href={`tel:${o.phone}`}>{o.phone}</a></> : null} · {rupees(o.amount)} · {timeAgo(o.paidAt || o.createdAt)}
       </div>
-
-      {o.stage === 'awaiting_release' ? (
-        <form className="row" onSubmit={(e) => {
-          e.preventDefault();
-          act(() => api.release(o.id, pin));
-        }}>
-          <input className="input pin-input" inputMode="numeric" maxLength={4} placeholder="PIN" value={pin} onChange={(e) => setPin(e.target.value)} />
-          <button className="btn btn-primary btn-sm">Release & print</button>
-        </form>
-      ) : null}
 
       <ul className="queue-items">
         {o.items.map((i) => {
@@ -277,7 +262,7 @@ function OrderCard({ o, printers, act, api }) {
               ) : null}
 
               <div className="qi-actions">
-                {!o.sensitive && o.code !== 'TEST' ? (
+                {o.code !== 'TEST' ? (
                   <button className="btn btn-ghost btn-xs" onClick={() => act(async () => {
                     const blob = await api.filePdf(i.fileId);
                     window.open(URL.createObjectURL(blob), '_blank');

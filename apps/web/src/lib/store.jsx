@@ -80,7 +80,6 @@ export function StoreProvider({ children }) {
         kind: file.kind,
         pages: file.pages,
         version: file.version ?? 1,
-        sensitive: !!file.sensitive,
         fit: file.fit || 'fit',
         trending: !!defaults.trending,
         color: defaults.color ?? false,

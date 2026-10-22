@@ -51,7 +51,6 @@ function CartItem({ item, onPreview }) {
             <strong className="file-name">{item.name}</strong>
             <span className="file-meta">
               <Icon name={item.kind === 'image' ? 'image' : 'file'} size={14} /> {plural(item.pages, 'page')}{item.kind === 'image' ? ' · photo' : ''}
-              {item.sensitive ? <span className="tag-private"><Icon name="lock" size={12} /> Private</span> : null}
             </span>
           </div>
           <button className="icon-btn danger" onClick={() => removeItem(item.key)} aria-label="Remove" title="Remove"><Icon name="trash" size={18} /></button>
@@ -225,9 +224,6 @@ export default function Cart() {
           <dt>A4 sheets</dt><dd>{sheets}</dd>
           <dt>Total</dt><dd className="total">{rupees(total)}</dd>
         </dl>
-        {cart.some((i) => i.sensitive) ? (
-          <p className="notice"><Icon name="lock" size={16} /> This order has private documents. You'll get a PIN — they print only when you show it at the counter.</p>
-        ) : null}
         {online !== null && !canOrder ? (
           <p className="notice error">The shop isn't taking orders right now. Your cart is saved — place the order when we're open.</p>
         ) : null}

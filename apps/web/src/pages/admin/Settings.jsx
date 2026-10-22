@@ -71,7 +71,6 @@ export default function Settings({ api }) {
       <label className="field"><span>Delete customer files this many hours after the order closes</span>
         <input className="input" type="number" min="1" value={s.retention_hours} onChange={(e) => setS({ ...s, retention_hours: Number(e.target.value) })} />
       </label>
-      <small className="muted">Private documents are always deleted right after printing (and within 1 hour if unused).</small>
 
       <div className="row">
         <button className="btn btn-primary">Save</button>

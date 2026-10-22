@@ -6,9 +6,9 @@ import { useStore } from '../lib/store.jsx';
 /**
  * The order code as a QR "pickup pass". Whoever shows it at the counter can
  * collect, so the customer can forward it to someone collecting for them.
- * We share only the code, never the order link (which would reveal the private-print PIN).
+ * We share only the code, never the order link.
  */
-export default function PickupPass({ code, sensitive }) {
+export default function PickupPass({ code }) {
   const { shop } = useStore();
   const [qr, setQr] = useState('');
 
@@ -17,8 +17,7 @@ export default function PickupPass({ code, sensitive }) {
   }, [code]);
 
   const shopName = shop.name;
-  const text = `Please collect my prints from ${shopName}. Pickup code: ${code}`
-    + (sensitive ? ' (you will also need the 4-digit PIN — ask me for it)' : '');
+  const text = `Please collect my prints from ${shopName}. Pickup code: ${code}`;
 
   async function share() {
     if (navigator.share) {

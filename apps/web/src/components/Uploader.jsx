@@ -4,12 +4,11 @@ import Icon from './Icon.jsx';
 import { api } from '../lib/api.js';
 import { useStore } from '../lib/store.jsx';
 
-/** Drop zone + private-mode switch. Uploaded files go straight to the cart. */
+/** Drop zone. Uploaded files go straight to the cart. */
 export default function Uploader() {
   const { config, addToCart } = useStore();
   const navigate = useNavigate();
   const input = useRef(null);
-  const [sensitive, setSensitive] = useState(false);
   const [uploads, setUploads] = useState([]); // {id, name, progress, error}
   const [dragging, setDragging] = useState(false);
 
@@ -31,7 +30,7 @@ export default function Uploader() {
           return false;
         }
         try {
-          const saved = await api.uploadFile(file, { sensitive, fit: 'fit' }, (p) => set(id, { progress: Math.min(p, 0.95) }));
+          const saved = await api.uploadFile(file, { fit: 'fit' }, (p) => set(id, { progress: Math.min(p, 0.95) }));
           addToCart(saved);
           set(id, { progress: 1 });
           return true;
@@ -76,14 +75,6 @@ export default function Uploader() {
           }} />
       </div>
 
-      <label className={`private-toggle${sensitive ? ' on' : ''}`}>
-        <input type="checkbox" checked={sensitive} onChange={(e) => setSensitive(e.target.checked)} />
-        <span className="switch" aria-hidden />
-        <span>
-          <b><Icon name="lock" size={15} /> Private documents</b>
-          <small>For Aadhaar, PAN, bank statements. Encrypted, hidden from staff, printed only after you give your PIN at the counter, then deleted.</small>
-        </span>
-      </label>
 
       {uploads.length ? (
         <ul className="upload-list">

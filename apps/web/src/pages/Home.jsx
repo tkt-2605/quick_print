@@ -33,11 +33,8 @@ export default function Home() {
         <section className="intro">
           <div className="intro-text">
             <p className="kicker">Printing · Photocopy · A4</p>
-            <h1>Send your prints from your phone. Pick them up at the counter.</h1>
-            <p className="lead">
-              No pen drives, no WhatsApp forwarding, no waiting while we find your file.
-              Upload here, check how it will look, and your prints are ready when you reach the counter.
-            </p>
+            <h1>Print from your phone. Collect at the counter.</h1>
+            <p className="lead">Upload, check the preview, and your prints are ready when you arrive.</p>
           </div>
           <Uploader />
           <div className="intro-prices">
@@ -47,8 +44,7 @@ export default function Home() {
                 <tbody>
                   <tr><th>Black &amp; white</th><td><b>{rupees(config.prices.bw)}</b> per side</td></tr>
                   <tr><th>Colour</th><td><b>{rupees(config.prices.color)}</b> per side</td></tr>
-                  <tr><th>Both sides</th><td>charged per printed side</td></tr>
-                  <tr><th>Private documents</th><td>no extra charge</td></tr>
+                  <tr><th>Both sides</th><td>same price per side</td></tr>
                 </tbody>
               </table>
             ) : null}

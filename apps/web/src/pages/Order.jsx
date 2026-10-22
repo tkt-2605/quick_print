@@ -12,13 +12,12 @@ const STEPS = [
   ['ready', 'Ready to collect'],
   ['collected', 'Collected'],
 ];
-const STEP_INDEX = { pending_payment: -1, awaiting_release: 0, queued: 0, attention: 1, printing: 1, ready: 2, collected: 3 };
-const PASS_STAGES = ['pending_payment', 'queued', 'printing', 'ready', 'awaiting_release', 'attention'];
+const STEP_INDEX = { pending_payment: -1, queued: 0, attention: 1, printing: 1, ready: 2, collected: 3 };
+const PASS_STAGES = ['pending_payment', 'queued', 'printing', 'ready', 'attention'];
 const FINAL = ['collected', 'cancelled'];
 
 const ITEM_STATUS = {
   pending_payment: 'Awaiting payment',
-  held: 'Waiting for your PIN',
   queued: 'In queue',
   printing: 'Printing',
   awaiting_flip: 'Printing back sides',
@@ -95,7 +94,7 @@ export default function Order() {
           Show this code or QR at the counter · {rupees(order.amount)} {unpaid ? (counter ? 'to pay' : 'unpaid') : 'paid'}
         </span>
         {PASS_STAGES.includes(order.stage) && (!unpaid || counter) ? (
-          <PickupPass code={order.code} sensitive={order.sensitive} />
+          <PickupPass code={order.code} />
         ) : null}
       </div>
 
@@ -111,13 +110,6 @@ export default function Order() {
         <p className="notice"><Icon name="pause" size={16} /> Short delay at the shop — your prints are next in line.</p>
       ) : null}
 
-      {order.pin ? (
-        <div className="card pin-card">
-          <span><Icon name="lock" size={16} /> Your private documents are waiting. Tell this PIN to the shopkeeper <b>when you are at the counter</b>:</span>
-          <div className="pin">{order.pin}</div>
-          <small className="muted">They print in front of you and are deleted right after.</small>
-        </div>
-      ) : null}
 
       {step >= 0 ? (
         <ol className="timeline">
@@ -126,7 +118,6 @@ export default function Order() {
               <span className="dot" />
               {label}
               {i === step && order.stage === 'attention' ? <small> — a staff member is checking your prints</small> : null}
-              {i === step && order.stage === 'awaiting_release' ? <small> — waiting for your PIN at the counter</small> : null}
             </li>
           ))}
         </ol>
